@@ -4,10 +4,14 @@ import StatusBadge from "../components/common/StatusBadge";
 import Table from "../components/common/Table";
 import { usePlacement } from "../context/placementStore";
 import { useState } from "react";
+import JobModal from "../components/common/JobModal";
+import { useAuth } from "../context/AuthContext";
 
 function Companies() {
   const { companies } = usePlacement();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
 
   const filteredCompanies = companies.filter((company) =>
     [company.name, company.role, company.location]
@@ -49,11 +53,21 @@ function Companies() {
             </p>
           </div>
 
-          <SearchBar
-            onChange={setSearchTerm}
-            placeholder="Search companies"
-            value={searchTerm}
-          />
+          <div className="flex items-center gap-4">
+            <SearchBar
+              onChange={setSearchTerm}
+              placeholder="Search companies"
+              value={searchTerm}
+            />
+            {user?.role === "Admin" && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shrink-0"
+              >
+                Add Job
+              </button>
+            )}
+          </div>
         </section>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -87,6 +101,14 @@ function Companies() {
                   </span>
                 ))}
               </div>
+
+              {user?.role === "Student" && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <button className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                    Apply Now
+                  </button>
+                </div>
+              )}
             </article>
           ))}
         </div>
@@ -95,6 +117,15 @@ function Companies() {
           columns={columns}
           data={filteredCompanies}
           emptyMessage="No companies match your search"
+        />
+
+        <JobModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={(data) => {
+            console.log("New Job:", data);
+            // Will integrate with backend in Phase 4
+          }}
         />
       </div>
     </Layout>

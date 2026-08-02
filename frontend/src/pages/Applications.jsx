@@ -4,6 +4,7 @@ import StatusBadge from "../components/common/StatusBadge";
 import Table from "../components/common/Table";
 import { usePlacement } from "../context/placementStore";
 import { useState } from "react";
+import ApplicationAction from "../components/common/ApplicationAction";
 
 const filters = ["All", "Applied", "Shortlisted", "Interview", "Selected"];
 
@@ -46,7 +47,15 @@ function Applications() {
     {
       header: "Status",
       key: "status",
-      render: (application) => <StatusBadge status={application.status} />,
+      render: (application) => (
+        <ApplicationAction 
+          application={application} 
+          onStatusChange={(id, newStatus) => {
+            console.log("Status changed:", id, newStatus);
+            // Will update in Phase 4 API integration
+          }}
+        />
+      ),
     },
   ];
 
