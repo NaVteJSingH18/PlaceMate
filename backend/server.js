@@ -17,7 +17,7 @@ const PORT = Number(process.env.PORT) || 5000
 app.use('/students',studentRoutes);
 
 app.use('/jobs',jobRoutes);
-
+ 
 app.get("/", (req, res) => {
     res.send("Welcome to PlaceMate Backend 🚀");
 });                                                             
