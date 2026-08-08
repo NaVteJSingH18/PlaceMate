@@ -4,16 +4,26 @@ import Student from '../models/Student.js'
 export const updateStudent = async (req,res)=>{
     try{
 
-        const student = await Student.findByIdAndUpdate(
+        const student = await Student.findById(
             req.params.id, // which student?
-            req.body,   // data from req that should be update
-            {   new:true    }
         );
+
         if(!student){
             return res.status(404).json("Student not found");
         }
 
+        if(student.user.toString() !== req.user.id){//check the user id 
+            return res.status(403).json({
+                message:"You can only update your own profile"
+            })
+        }
+        const updatedStudent = await Student.findByIdAndUpdate(
+            req.params.id,// which student?
+            req.body,// data from req that should be update
+            {new:true}
+        ) 
         res.status(200).json(student);
+
         }catch(error){
             res.status(500).json(
             {message : error.message}

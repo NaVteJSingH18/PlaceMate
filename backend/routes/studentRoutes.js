@@ -1,18 +1,33 @@
 import express from 'express';
 import {getAllStudents,createStudent,getStudentById,updateStudent,deleteStudent} from '../controllers/studentController.js'
-
+import authMiddleware from '../middleware/authMiddleware.js'
+import adminMiddleware from '../middleware/adminMiddleware.js'
 const router = express.Router();
 
 
+router.get('/', getAllStudents);
 
-router.get('/',getAllStudents); //get all students
+router.get('/:id', getStudentById);
 
-router.get('/:id',getStudentById);  // get one students
+router.post(
+    '/',
+    authMiddleware,
+    adminMiddleware,
+    createStudent
+);
 
-router.post('/',createStudent);     // create a student
+router.put(
+    '/:id',
+    authMiddleware,
+    adminMiddleware,
+    updateStudent
+);
 
-router.put('/:id',updateStudent);         // update a student
-
-router.delete('/:id',deleteStudent); // delete a student
+router.delete(
+    '/:id',
+    authMiddleware,
+    adminMiddleware,
+    deleteStudent
+);
 
 export default router;

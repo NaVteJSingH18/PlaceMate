@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import Student from './Student'
 
 const   userSchema = new mongoose.Schema(
     {
@@ -23,8 +22,8 @@ const   userSchema = new mongoose.Schema(
         },
         role:{
             type:String,
-            emun:["student","admin"],
-            default:student
+            enum:["student","admin"],
+            default:"student"
         },
     },
     {
