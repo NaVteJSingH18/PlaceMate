@@ -14,7 +14,7 @@ const authMiddleware =  (req, res, next) => {
             token,
             process.env.JWT_SECRET
         );
-    req.user = decoded;
+    req.user = decoded;// will get the id from from the payload of the token 
     next();
     }catch(error){
         return res.status(401).json({

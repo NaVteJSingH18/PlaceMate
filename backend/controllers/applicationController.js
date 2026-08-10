@@ -47,3 +47,123 @@ export const applyForJob = async (req, res) => {
         });
     }
 };
+
+export const getAllApplications = async (req, res) => {
+    try {
+
+       const student  = await Application.find().populate("student").populate("job")
+
+       res.status(200).json(applications);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+export const updateApplicationStatus = async (req, res) => {
+    try {
+
+        const application = await Application.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: req.body.status
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found"
+            });
+        }
+
+        res.status(200).json(application);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+export const getMyApplications = async (req, res) => {
+    try {
+
+        const student = await Student.findOne({
+            user: req.user.id
+        });
+
+        if (!student) {
+            return res.status(404).json({
+                message: "Student profile not found"
+            });
+        }
+
+        const applications = await Application
+            .find({ student: student._id })
+            .populate("student")
+            .populate("job");
+
+        res.status(200).json(applications);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+export const getApplicationById = async (req, res) => {
+    try {
+
+        const application = await Application
+            .findById(req.params.id)
+            .populate("student")
+            .populate("job");
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found"
+            });
+        }
+
+        // Admin can view any application
+        if (req.user.role === "admin") {
+            return res.status(200).json(application);
+        }
+
+        // Find the Student belonging to the logged-in User
+        const student = await Student.findOne({
+            user: req.user.id
+        });
+
+        if (!student) {
+            return res.status(404).json({
+                message: "Student profile not found"
+            });
+        }
+
+        // Check ownership
+        if (
+            application.student._id.toString() !==
+            student._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+
+        res.status(200).json(application);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
