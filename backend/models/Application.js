@@ -27,7 +27,12 @@ const applicationSchema = new mongoose.Schema(
         
         timestamps:true,
     }
-)
+);
+
+applicationSchema.index(
+    { student: 1, job: 1 },
+    { unique: true }
+);
 
 const Application = mongoose.model(
     "Application",

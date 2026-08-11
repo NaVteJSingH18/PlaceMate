@@ -2,6 +2,7 @@ import Application from "../models/Application.js";
 import Student from "../models/Student.js";
 import Job from "../models/Job.js";
 
+
 export const applyForJob = async (req, res) => {
     try {
 
@@ -48,21 +49,25 @@ export const applyForJob = async (req, res) => {
     }
 };
 
+
 export const getAllApplications = async (req, res) => {
     try {
 
-       const student  = await Application.find().populate("student").populate("job")
+        const applications = await Application
+            .find()
+            .populate("student")
+            .populate("job");
 
-       res.status(200).json(applications);
+        res.status(200).json(applications);
 
     } catch (error) {
-
         res.status(500).json({
             message: error.message
         });
-
     }
 };
+
+
 export const updateApplicationStatus = async (req, res) => {
     try {
 
@@ -91,6 +96,8 @@ export const updateApplicationStatus = async (req, res) => {
         });
     }
 };
+
+
 export const getMyApplications = async (req, res) => {
     try {
 
@@ -117,6 +124,8 @@ export const getMyApplications = async (req, res) => {
         });
     }
 };
+
+
 export const getApplicationById = async (req, res) => {
     try {
 
@@ -136,7 +145,7 @@ export const getApplicationById = async (req, res) => {
             return res.status(200).json(application);
         }
 
-        // Find the Student belonging to the logged-in User
+        // Find Student belonging to logged-in User
         const student = await Student.findOne({
             user: req.user.id
         });
@@ -160,10 +169,8 @@ export const getApplicationById = async (req, res) => {
         res.status(200).json(application);
 
     } catch (error) {
-
         res.status(500).json({
             message: error.message
         });
-
     }
 };
