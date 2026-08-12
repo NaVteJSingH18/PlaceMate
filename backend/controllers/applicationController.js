@@ -82,7 +82,7 @@ export const updateApplicationStatus = async (req, res) => {
             }
         );
 
-        if (!application) {
+        if (!application)    {
             return res.status(404).json({
                 message: "Application not found"
             });

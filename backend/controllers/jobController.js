@@ -13,18 +13,71 @@ export const createJob = async (req,res)=>{
     }
 }
 
-export const getAllJobs = async (req,res)=>{
-    try{
-        const jobs = await Job.find();
-        res.status(200).json(jobs);
+export const getAllJobs = async (req, res) => {
+    try {
 
-    }catch(error){
+        const {
+            search,
+            category,
+            page = 1,
+            limit = 10,
+            sort = "newest"
+        } = req.query;
+
+        const filter = {};
+
+        if (category) {
+            filter.category = category;
+        }
+
+        if (search) {
+            filter.title = {
+                $regex: search,
+                $options: "i"
+            };
+        }
+
+        const pageNumber = Number(page);
+        const limitNumber = Number(limit);
+
+        const skip = (pageNumber - 1) * limitNumber;
+
+        const totalJobs = await Job.countDocuments(filter);
+        let sortOption = {};
+            if (sort === "newest"){
+                sortOption = { datePosted: -1 };
+                }else if (sort === "oldest"){
+                sortOption = { datePosted: 1 };
+                }
+            if (sort === "salaryHigh") {
+                sortOption = {
+                    "baseSalary.amount": -1
+                };
+            } else if (sort === "salaryLow") {
+                sortOption = {
+                    "baseSalary.amount": 1
+                };
+            }
+        const jobs = await Job.find(filter)     
+                              .sort(sortOption)
+                              .skip(skip)
+                              .limit(limitNumber);
+
+        const totalPages = Math.ceil(totalJobs / limitNumber);
+        
+        res.status(200).json({
+            jobs,
+            currentPage: pageNumber,
+            totalPages,
+            totalJobs
+        });
+
+    } catch (error) {
         res.status(500).json({
-            message:error.message
-        })
+            message: error.message
+        });
     }
-}
-
+};
 export const getJobById = async (req,res)=>{
     try{
         const job = await Job.findById(
