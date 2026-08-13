@@ -78,6 +78,7 @@ export const getAllJobs = async (req, res) => {
         });
     }
 };
+
 export const getJobById = async (req,res)=>{
     try{
         const job = await Job.findById(
