@@ -1,3 +1,5 @@
+import { validationResult } from "express-validator";
+
 const validationMiddleware = (req, res, next) => {
 
     const errors = validationResult(req);
@@ -10,3 +12,5 @@ const validationMiddleware = (req, res, next) => {
 
     next();
 };
+
+export default validationMiddleware;

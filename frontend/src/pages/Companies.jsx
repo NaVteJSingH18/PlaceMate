@@ -1,130 +1,267 @@
 import Layout from "../components/layout/Layout";
 import SearchBar from "../components/common/SearchBar";
-import StatusBadge from "../components/common/StatusBadge";
-import Table from "../components/common/Table";
-import { usePlacement } from "../context/placementStore";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import JobModal from "../components/common/JobModal";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
+import JobCard from "../components/common/JobCard";
+import JobStatsSidebar from "../components/companies/JobStatsSidebar";
+import { usePlacement } from "../context/placementStore";
 
 function Companies() {
-  const { companies } = usePlacement();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+  const { applications, refreshData } = usePlacement();
+  const [activeTab, setActiveTab] = useState("Opportunities");
+  const [showEligible, setShowEligible] = useState(true);
+  const [showNonEligible, setShowNonEligible] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [employmentType, setEmploymentType] = useState("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredCompanies = companies.filter((company) =>
-    [company.name, company.role, company.location]
-      .join(" ")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+  const [jobStatus, setJobStatus] = useState("All");
 
-  const columns = [
-    {
-      header: "Company",
-      key: "name",
-      render: (company) => (
-        <div>
-          <p className="font-semibold text-slate-950">{company.name}</p>
-          <p className="text-xs text-slate-500">{company.location}</p>
-        </div>
-      ),
-    },
-    { header: "Role", key: "role" },
-    { header: "Package", key: "package" },
-    { header: "Openings", key: "openings" },
-    { header: "Deadline", key: "deadline" },
-    {
-      header: "Status",
-      key: "status",
-      render: (company) => <StatusBadge status={company.status} />,
-    },
-  ];
+  const loadJobs = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/jobs");
+      setJobs(response.data?.jobs || []);
+    } catch (error) {
+      console.error("Failed to fetch jobs", error);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  const displayedJobs = useMemo(() => {
+    let sourceList = [];
+    
+    if (activeTab === "Opportunities") {
+      const appliedJobIds = applications.map(app => 
+        typeof app.job === 'object' ? app.job?._id : app.job
+      );
+      sourceList = jobs.filter(job => {
+        if (user?.role === "student" && appliedJobIds.includes(job._id)) {
+          return false;
+        }
+        return true;
+      });
+    } else if (activeTab === "Applications") {
+      sourceList = applications.map(app => ({
+        ...(app.job || {}),
+        applicationStatus: app.status
+      }));
+    } else if (activeTab === "Offers") {
+      sourceList = applications
+        .filter(app => app.status === "Selected")
+        .map(app => ({
+          ...(app.job || {}),
+          applicationStatus: app.status
+        }));
+    }
+
+    return sourceList.filter((job) => {
+      if (!job || !job._id) return false;
+      const matchesSearch = [job.company?.name || "", job.title || "", job.location || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      const matchesType = employmentType === "All" || job.employmentType === employmentType;
+      const matchesStatus = jobStatus === "All" || job.status === jobStatus;
+
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [jobs, applications, searchTerm, activeTab, user, employmentType, jobStatus]);
+
+  const handleApply = async (job) => {
+    try {
+      await api.post("/applications", { job: job._id });
+      window.alert("Applied successfully");
+      setJobs((prev) => prev.filter((j) => j._id !== job._id));
+      refreshData();
+    } catch (error) {
+      window.alert(error.response?.data?.message || "Failed to apply");
+    }
+  };
+
+  const handleCreateJob = async (data) => {
+    const payload = {
+      title: data.title,
+      company: {
+        name: data.companyName
+      },
+      category: data.category,
+      employmentType: data.employmentType,
+      baseSalary: {
+        amount: data.baseSalaryAmount ? Number(data.baseSalaryAmount) : 0
+      },
+      location: data.location,
+      validThrough: data.validThrough,
+      description: data.description
+    };
+
+    const response = await api.post("/jobs", payload);
+
+    if (data.logo) {
+      const formData = new FormData();
+      formData.append("logo", data.logo);
+      await api.post(`/jobs/${response.data._id}/logo`, formData);
+    }
+
+    await loadJobs();
+  };
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-950">Companies</h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Manage hiring partners, open roles, deadlines, and drive status.
-            </p>
+      <div className="mx-auto max-w-7xl">
+        {/* Header Section */}
+        <header className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-slate-800">
+            <span className="text-3xl text-purple-700">💼</span>
+            <h1 className="text-3xl font-medium tracking-tight">Jobs</h1>
           </div>
-
-          <div className="flex items-center gap-4">
-            <SearchBar
-              onChange={setSearchTerm}
-              placeholder="Search companies"
-              value={searchTerm}
-            />
-            {user?.role === "Admin" && (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shrink-0"
-              >
-                Add Job
-              </button>
-            )}
-          </div>
-        </section>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {companies.map((company) => (
-            <article
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-              key={company.id}
+          {user?.role === "admin" && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-bold text-slate-950">{company.name}</h2>
-                  <p className="mt-1 text-sm text-slate-500">{company.role}</p>
+              Add Job
+            </button>
+          )}
+        </header>
+
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[1fr_350px]">
+          
+          {/* Left Column: Jobs List */}
+          <section>
+            {/* Tabs & Filters */}
+            <div className="mb-6 border-b border-slate-200">
+              <nav className="flex items-center gap-8 text-sm font-medium">
+                <button
+                  className={`py-3 ${activeTab === "Opportunities" ? "border-b-2 border-purple-700 text-purple-700" : "text-slate-500 hover:text-slate-700"}`}
+                  onClick={() => setActiveTab("Opportunities")}
+                >
+                  Opportunities
+                </button>
+                <button
+                  className={`py-3 ${activeTab === "Applications" ? "border-b-2 border-purple-700 text-purple-700" : "text-slate-500 hover:text-slate-700"}`}
+                  onClick={() => setActiveTab("Applications")}
+                >
+                  Applications
+                </button>
+                <button
+                  className={`py-3 ${activeTab === "Offers" ? "border-b-2 border-purple-700 text-purple-700" : "text-slate-500 hover:text-slate-700"}`}
+                  onClick={() => setActiveTab("Offers")}
+                >
+                  Offers
+                </button>
+              </nav>
+            </div>
+
+            <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex w-full flex-col gap-4 sm:max-w-2xl sm:flex-row sm:items-center">
+                <div className="flex-1">
+                  <SearchBar
+                    onChange={setSearchTerm}
+                    placeholder="Search roles or locations"
+                    value={searchTerm}
+                  />
                 </div>
-                <StatusBadge status={company.status} />
+                <select
+                  className="h-11 w-full sm:w-auto rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700"
+                  onChange={(event) => setEmploymentType(event.target.value)}
+                  value={employmentType}
+                >
+                  <option value="All">All Types</option>
+                  <option value="FULL_TIME">Full Time</option>
+                  <option value="INTERN">Intern</option>
+                  <option value="PART_TIME">Part Time</option>
+                  <option value="CONTRACT">Contract</option>
+                </select>
+                <select
+                  className="h-11 w-full sm:w-auto rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700"
+                  onChange={(event) => setJobStatus(event.target.value)}
+                  value={jobStatus}
+                >
+                  <option value="All">All Status</option>
+                  <option value="Open">Open</option>
+                  <option value="Closed">Closed</option>
+                </select>
               </div>
-
-              <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="font-semibold text-slate-900">
-                  {company.package}
-                </span>
-                <span className="text-slate-500">{company.openings} openings</span>
+              <div className="flex shrink-0 justify-start gap-6 text-sm font-medium text-slate-600 xl:justify-end">
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    checked={showEligible}
+                    className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                    onChange={(e) => setShowEligible(e.target.checked)}
+                    type="checkbox"
+                  />
+                  Eligible
+                </label>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    checked={showNonEligible}
+                    className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                    onChange={(e) => setShowNonEligible(e.target.checked)}
+                    type="checkbox"
+                  />
+                  Non Eligible
+                </label>
               </div>
+            </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {company.skills.map((skill) => (
-                  <span
-                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
-                    key={skill}
-                  >
-                    {skill}
-                  </span>
+            {/* Jobs List */}
+            {loading ? (
+              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+                Loading...
+              </div>
+            ) : displayedJobs.length > 0 ? (
+              <div className="flex flex-col">
+                {displayedJobs.map((job) => (
+                  <JobCard
+                    canApply={user?.role === "student" && activeTab === "Opportunities"}
+                    job={job}
+                    key={job._id}
+                    onApply={handleApply}
+                  />
                 ))}
               </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+                <h2 className="text-lg font-semibold text-slate-900">No active jobs right now</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Check back after admins publish new drives.
+                </p>
+              </div>
+            )}
+          </section>
 
-              {user?.role === "Student" && (
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <button className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm">
-                    Apply Now
-                  </button>
-                </div>
-              )}
-            </article>
-          ))}
+          {/* Right Column: Stats Sidebar */}
+          <JobStatsSidebar
+            totalApplications={applications.length}
+            totalOpportunities={jobs.length}
+          />
         </div>
-
-        <Table
-          columns={columns}
-          data={filteredCompanies}
-          emptyMessage="No companies match your search"
-        />
 
         <JobModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSubmit={(data) => {
-            console.log("New Job:", data);
-            // Will integrate with backend in Phase 4
+          onSubmit={async (data) => {
+            try {
+              await handleCreateJob(data);
+              setIsModalOpen(false);
+            } catch (error) {
+              console.error("Error creating job:", error);
+              window.alert(error.response?.data?.message || "Failed to create job");
+            }
           }}
         />
       </div>

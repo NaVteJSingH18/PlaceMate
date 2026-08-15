@@ -11,6 +11,14 @@ const jobSchema = new mongoose.Schema({
     name: { type: String, required: true },
     website: { type: String }
   },
+  logo: {
+    url: {
+        type: String
+    },
+    public_id: {
+        type: String
+    }
+},
   category: { 
     type: String, 
     required: true 

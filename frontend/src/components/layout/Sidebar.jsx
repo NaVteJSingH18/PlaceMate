@@ -32,30 +32,41 @@ const links = [
 
 function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-800 bg-slate-950 p-5 text-white lg:block">
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold">PlaceMate</h1>
-        <p className="mt-1 text-sm text-slate-400">Campus placement CRM</p>
+    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col justify-between border-r border-slate-200 bg-white p-5 text-slate-700 lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+      <div>
+        <div className="mb-8 flex items-center gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-purple-600 text-white font-bold text-xs">
+            PM
+          </div>
+          <div>
+            <h1 className="text-xl font-bold leading-tight text-slate-800">PlaceMate</h1>
+            <p className="text-xs text-slate-500">Campus placement CRM</p>
+          </div>
+        </div>
+
+        <nav className="space-y-1.5">
+          {links.map((link) => (
+            <NavLink
+              key={link.name}
+              to={link.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-purple-50 text-purple-700"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`
+              }
+            >
+              <span className="text-lg">{link.icon}</span>
+              {link.name}
+            </NavLink>
+          ))}
+        </nav>
       </div>
 
-      <nav className="space-y-3">
-        {links.map((link) => (
-          <NavLink
-            key={link.name}
-            to={link.path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                isActive
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-950/30"
-                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
-              }`
-            }
-          >
-            <span className="text-base">{link.icon}</span>
-            {link.name}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Footer Branding Removed per request */}
+      <div className="mt-8 border-t border-slate-100 pt-4">
+      </div>
     </aside>
   );
 }

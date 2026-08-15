@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import StatusBadge from "./StatusBadge";
 
@@ -6,17 +6,21 @@ export default function ApplicationAction({ application, onStatusChange }) {
   const { user } = useAuth();
   const [status, setStatus] = useState(application.status);
 
+  useEffect(() => {
+    setStatus(application.status);
+  }, [application.status]);
+
   const statuses = ["Applied", "Shortlisted", "Interview", "Selected", "Rejected"];
 
   const handleChange = (e) => {
     const newStatus = e.target.value;
     setStatus(newStatus);
     if (onStatusChange) {
-      onStatusChange(application.id, newStatus);
+      onStatusChange(application._id || application.id, newStatus);
     }
   };
 
-  if (user?.role === "Admin") {
+  if (user?.role === "admin") {
     return (
       <select
         value={status}

@@ -5,13 +5,22 @@ import { useAuth } from "../context/AuthContext";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email, password);
-    navigate("/dashboard");
+    setError("");
+    setLoading(true);
+    const result = await login(email, password);
+    setLoading(false);
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -22,6 +31,11 @@ export default function Login() {
             Sign in to PlaceMate
           </h2>
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>

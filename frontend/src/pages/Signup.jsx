@@ -7,10 +7,12 @@ export default function Signup() {
     name: "",
     email: "",
     password: "",
-    role: "Student", // Default to student
+    role: "student",
     branch: "",
     cgpa: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
@@ -18,10 +20,17 @@ export default function Signup() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    signup(formData);
-    navigate("/dashboard");
+    setError("");
+    setLoading(true);
+    const result = await signup(formData);
+    setLoading(false);
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -32,6 +41,11 @@ export default function Signup() {
             Create an Account
           </h2>
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-3">
             <div>
@@ -87,12 +101,12 @@ export default function Signup() {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="Student">Student</option>
-                <option value="Admin">Admin</option>
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
 
-            {formData.role === "Student" && (
+            {formData.role === "student" && (
               <>
                 <div>
                   <label htmlFor="branch" className="sr-only">Branch/Major</label>
@@ -100,7 +114,7 @@ export default function Signup() {
                     id="branch"
                     name="branch"
                     type="text"
-                    required={formData.role === "Student"}
+                    required={formData.role === "student"}
                     className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-gray-700 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Branch / Major (e.g., Computer Science)"
                     value={formData.branch}
@@ -117,7 +131,7 @@ export default function Signup() {
                     step="0.01"
                     min="0"
                     max="10"
-                    required={formData.role === "Student"}
+                    required={formData.role === "student"}
                     className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-gray-700 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="CGPA (out of 10.0)"
                     value={formData.cgpa}

@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/layout/Layout";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 
 export default function Profile() {
   const { user } = useAuth();
+  const [studentRecord, setStudentRecord] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -17,16 +20,45 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        branch: user.branch || "",
-        cgpa: user.cgpa || "",
-        skills: user.skills ? user.skills.join(", ") : "",
-        resume: null,
-      });
-    }
+    const loadProfile = async () => {
+      if (!user) {
+        setLoadingProfile(false);
+        return;
+      }
+
+      if (!user.studentId) {
+        setFormData({
+          name: user.name || "",
+          email: user.email || "",
+          branch: "",
+          cgpa: "",
+          skills: "",
+          resume: null,
+        });
+        setLoadingProfile(false);
+        return;
+      }
+
+      try {
+        const response = await api.get(`/students/${user.studentId}`);
+        const student = response.data;
+        setStudentRecord(student);
+        setFormData({
+          name: student.name || user.name || "",
+          email: user.email || "",
+          branch: student.branch || "",
+          cgpa: student.cgpa ?? "",
+          skills: (student.skills || []).join(", "),
+          resume: null,
+        });
+      } catch (error) {
+        console.error("Failed to load student profile", error);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    loadProfile();
   }, [user]);
 
   const handleChange = (e) => {
@@ -38,12 +70,47 @@ export default function Profile() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Profile updated:", formData);
-    // Phase 4: API Integration to save profile
-    setIsEditing(false);
+    try {
+      if (formData.resume) {
+        const fileData = new FormData();
+        fileData.append("resume", formData.resume);
+        await api.post("/students/upload-resume", fileData);
+      }
+
+      if (user?.studentId) {
+        const updateData = {
+          name: formData.name,
+          branch: formData.branch,
+          cgpa: formData.cgpa ? Number(formData.cgpa) : 0,
+          skills: formData.skills.split(",").map(s => s.trim()).filter(s => s)
+        };
+        await api.put(`/students/${user.studentId}`, updateData);
+      }
+
+      if (user?.studentId) {
+        const response = await api.get(`/students/${user.studentId}`);
+        setStudentRecord(response.data);
+      }
+      
+      setIsEditing(false);
+      window.alert("Profile updated successfully");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      window.alert(error.response?.data?.message || "Failed to update profile");
+    }
   };
+
+  if (loadingProfile) {
+    return (
+      <Layout>
+        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-slate-500">
+          Loading profile...
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -153,12 +220,23 @@ export default function Profile() {
                     type="file"
                     name="resume"
                     onChange={handleChange}
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
                   <div className="text-sm text-slate-500 italic">
-                    {user?.resumeUploaded ? "Resume is uploaded." : "No resume uploaded."}
+                    {studentRecord?.resume?.url ? (
+                      <a
+                        className="font-semibold not-italic text-blue-600 hover:underline"
+                        href={studentRecord.resume.url}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        View uploaded resume
+                      </a>
+                    ) : (
+                      "No resume uploaded."
+                    )}
                   </div>
                 )}
               </div>

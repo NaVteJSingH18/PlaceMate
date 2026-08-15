@@ -23,9 +23,10 @@ const applicationSchema = new mongoose.Schema(
         },
         nextStep:{
             type:String
-        },
-        
-        timestamps:true,
+        }
+    },
+    {
+        timestamps: true
     }
 );
 

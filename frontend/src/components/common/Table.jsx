@@ -19,8 +19,8 @@ function Table({ columns, data, emptyMessage = "No records found" }) {
 
           <tbody className="divide-y divide-slate-100">
             {data.length > 0 ? (
-              data.map((row) => (
-                <tr className="transition hover:bg-slate-50" key={row.id}>
+              data.map((row, index) => (
+                <tr className="transition hover:bg-slate-50" key={row._id || row.id || index}>
                   {columns.map((column) => (
                     <td
                       className="whitespace-nowrap px-5 py-4 text-sm text-slate-700"
