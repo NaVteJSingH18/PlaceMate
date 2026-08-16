@@ -12,7 +12,6 @@ export default function Signup() {
     cgpa: "",
   });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
@@ -23,9 +22,7 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
     const result = await signup(formData);
-    setLoading(false);
     if (result.success) {
       navigate("/dashboard");
     } else {

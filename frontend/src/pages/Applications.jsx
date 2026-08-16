@@ -92,7 +92,9 @@ function Applications() {
           <div>
             <h1 className="text-3xl font-bold text-slate-950">Applications</h1>
             <p className="mt-2 text-sm text-slate-500">
-              Follow every candidate from applied to final selection.
+              {role === "admin"
+                ? "Follow every candidate from applied to final selection."
+                : "Track your applications and view your selection status."}
             </p>
           </div>
 

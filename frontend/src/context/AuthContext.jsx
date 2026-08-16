@@ -1,20 +1,21 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import api from "../services/api";
 
-export const AuthContext = createContext(null);
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [loading, setLoading] = useState(false); // No longer needed to be true initially since we resolve user synchronously
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+    if (!token && user) {
+      setUser(null);
     }
-    setLoading(false);
-  }, []);
+  }, [user]);
 
   const login = async (email, password) => {
     try {

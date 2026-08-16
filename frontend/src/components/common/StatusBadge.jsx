@@ -5,6 +5,8 @@ const styles = {
   Screening: "bg-violet-50 text-violet-700 ring-violet-200",
   Selected: "bg-green-50 text-green-700 ring-green-200",
   Shortlisted: "bg-indigo-50 text-indigo-700 ring-indigo-200",
+  "Under Review": "bg-yellow-50 text-yellow-700 ring-yellow-200",
+  Rejected: "bg-red-50 text-red-700 ring-red-200",
 };
 
 function StatusBadge({ status }) {

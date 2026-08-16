@@ -44,14 +44,18 @@ export const createStudent = asyncHandler(async (req, res) => {
 });
 
 export const deleteStudent = asyncHandler(async (req, res) => {
-    const student = await Student.findByIdAndDelete(req.params.id);
+    const student = await Student.findById(req.params.id);
 
     if (!student) {
         throw new ApiError(404, "Student profile not found");
     }
+    
+    const User = (await import("../models/User.js")).default;
+    await User.findByIdAndDelete(student.user);
+    await Student.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
-        message: "Student deleted successfully"
+        message: "Student and associated user deleted successfully"
     });
 });
 

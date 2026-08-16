@@ -26,7 +26,7 @@ export function PlacementProvider({ children }) {
       setActivity([]);
       return;
     }
-    setLoading(true);
+    if (!loading) setLoading(true);
     try {
       const [jobsRes, statsRes] = await Promise.all([
         api.get("/jobs"),

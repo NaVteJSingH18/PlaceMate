@@ -50,26 +50,42 @@ function StatsSection({ title, count, stats }) {
   );
 }
 
-function JobStatsSidebar({
-  totalOpportunities = 2,
-  totalApplications = 2,
-  totalOffers = 0,
-}) {
+function JobStatsSidebar({ jobs = [], applications = [] }) {
+  const getStats = (list) => {
+    let j = 0, ji = 0, i = 0;
+    list.forEach((item) => {
+      const type = item.employmentType || item.job?.employmentType || "FULL_TIME";
+      if (type === "FULL_TIME") {
+        j++;
+      } else if (type === "INTERN") {
+        i++;
+      } else {
+        ji++;
+      }
+    });
+    return { jobs: j, jobInternships: ji, internships: i };
+  };
+
+  const opportunitiesStats = getStats(jobs);
+  const applicationsStats = getStats(applications);
+  const offersList = applications.filter((app) => app.status === "Selected");
+  const offersStats = getStats(offersList);
+
   return (
     <aside className="hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm xl:block">
       <StatsSection
-        count={totalOpportunities}
-        stats={{ jobs: 2, jobInternships: 0, internships: 0 }}
+        count={jobs.length}
+        stats={opportunitiesStats}
         title="Opportunities"
       />
       <StatsSection
-        count={totalApplications}
-        stats={{ jobs: 2, jobInternships: 0, internships: 0 }}
+        count={applications.length}
+        stats={applicationsStats}
         title="Applications"
       />
       <StatsSection
-        count={totalOffers}
-        stats={{ jobs: 0, jobInternships: 0, internships: 0 }}
+        count={offersList.length}
+        stats={offersStats}
         title="Offer in hand"
       />
     </aside>

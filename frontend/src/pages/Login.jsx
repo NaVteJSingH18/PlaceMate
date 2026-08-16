@@ -6,16 +6,13 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
     const result = await login(email, password);
-    setLoading(false);
     if (result.success) {
       navigate("/dashboard");
     } else {
@@ -69,6 +66,14 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                Forgot your password?
+              </Link>
             </div>
           </div>
 

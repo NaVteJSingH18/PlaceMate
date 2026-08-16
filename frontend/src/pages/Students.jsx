@@ -1,15 +1,64 @@
 import Layout from "../components/layout/Layout";
 import SearchBar from "../components/common/SearchBar";
-import StatusBadge from "../components/common/StatusBadge";
 import Table from "../components/common/Table";
 import { usePlacement } from "../context/placementStore";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import StudentModal from "../components/common/StudentModal";
+import api from "../services/api";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 function Students() {
-  const { students } = usePlacement();
+  const { students, refreshData } = usePlacement();
   const { role } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+
+  const handleAddStudent = async (data) => {
+    try {
+      await api.post("/auth/register", {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: "student",
+        branch: data.branch,
+        cgpa: data.cgpa,
+        skills: data.skills
+      });
+      window.alert("Student added successfully");
+      refreshData();
+    } catch (error) {
+      window.alert(error.response?.data?.message || "Failed to add student");
+    }
+  };
+
+  const handleEditStudent = async (data) => {
+    try {
+      await api.put(`/students/${editingStudent._id || editingStudent.id}`, {
+        name: data.name,
+        branch: data.branch,
+        cgpa: data.cgpa,
+        skills: data.skills
+      });
+      window.alert("Student updated successfully");
+      refreshData();
+    } catch (error) {
+      window.alert(error.response?.data?.message || "Failed to update student");
+    }
+  };
+
+  const handleDeleteStudent = async (studentId) => {
+    if (window.confirm("Are you sure you want to delete this student and their account?")) {
+      try {
+        await api.delete(`/students/${studentId}`);
+        window.alert("Student deleted successfully");
+        refreshData();
+      } catch (error) {
+        window.alert(error.response?.data?.message || "Failed to delete student");
+      }
+    }
+  };
 
   if (role !== "admin") {
     return (
@@ -68,6 +117,31 @@ function Students() {
         </span>
       ),
     },
+    {
+      header: "Actions",
+      key: "actions",
+      render: (student) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setEditingStudent(student);
+              setIsModalOpen(true);
+            }}
+            className="text-slate-400 hover:text-blue-600 transition p-1.5 rounded hover:bg-blue-50"
+            title="Edit Student"
+          >
+            <FaEdit size={16} />
+          </button>
+          <button
+            onClick={() => handleDeleteStudent(student._id || student.id)}
+            className="text-slate-400 hover:text-red-600 transition p-1.5 rounded hover:bg-red-50"
+            title="Delete Student"
+          >
+            <FaTrash size={16} />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -81,11 +155,22 @@ function Students() {
             </p>
           </div>
 
-          <SearchBar
-            onChange={setSearchTerm}
-            placeholder="Search students"
-            value={searchTerm}
-          />
+          <div className="flex w-full sm:w-auto items-center gap-4">
+            <SearchBar
+              onChange={setSearchTerm}
+              placeholder="Search students"
+              value={searchTerm}
+            />
+            <button
+              onClick={() => {
+                setEditingStudent(null);
+                setIsModalOpen(true);
+              }}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 whitespace-nowrap"
+            >
+              Add Student
+            </button>
+          </div>
         </section>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -113,6 +198,24 @@ function Students() {
               <p className="mt-1 text-sm text-slate-500">
                 {student.branch || "No Branch"} - CGPA {student.cgpa || "N/A"}
               </p>
+              
+              <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
+                <button
+                  onClick={() => {
+                    setEditingStudent(student);
+                    setIsModalOpen(true);
+                  }}
+                  className="flex-1 rounded border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteStudent(student._id || student.id)}
+                  className="flex-1 rounded border border-red-200 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                >
+                  Delete
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -129,6 +232,24 @@ function Students() {
             emptyMessage="No students match your search"
           />
         )}
+
+        <StudentModal
+          isOpen={isModalOpen}
+          initialData={editingStudent}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingStudent(null);
+          }}
+          onSubmit={async (data) => {
+            if (editingStudent) {
+              await handleEditStudent(data);
+            } else {
+              await handleAddStudent(data);
+            }
+            setIsModalOpen(false);
+            setEditingStudent(null);
+          }}
+        />
       </div>
     </Layout>
   );

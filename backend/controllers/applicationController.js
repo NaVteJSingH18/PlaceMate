@@ -47,6 +47,8 @@ export const getAllApplications = asyncHandler(async (req, res) => {
 });
 
 
+import { sendEmail } from "../utils/emailService.js";
+
 export const updateApplicationStatus = asyncHandler(async (req, res) => {
     const application = await Application.findByIdAndUpdate(
         req.params.id,
@@ -57,10 +59,31 @@ export const updateApplicationStatus = asyncHandler(async (req, res) => {
             new: true,
             runValidators: true
         }
-    );
+    ).populate({
+        path: "student",
+        populate: { path: "user" }
+    }).populate("job");
 
     if (!application) {
         throw new ApiError(404, "Application not found");
+    }
+
+    // Send email notification to the student
+    if (application.student && application.student.user && application.student.user.email) {
+        const emailContent = `
+            <h2>Application Status Update</h2>
+            <p>Dear ${application.student.name},</p>
+            <p>Your application for the <strong>${application.job.title}</strong> role at <strong>${application.job.company.name}</strong> has been updated to: <strong>${req.body.status}</strong>.</p>
+            <br/>
+            <p>Best regards,<br/>The PlaceMate Team</p>
+        `;
+        
+        await sendEmail({
+            to: application.student.user.email,
+            subject: `Update on your application to ${application.job.company.name}`,
+            text: `Your application status is now ${req.body.status}.`,
+            html: emailContent
+        });
     }
 
     res.status(200).json(application);

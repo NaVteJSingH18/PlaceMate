@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 
-export default function JobModal({ isOpen, onClose, onSubmit }) {
+export default function JobModal({ isOpen, onClose, onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
     title: "",
     companyName: "",
@@ -13,6 +13,34 @@ export default function JobModal({ isOpen, onClose, onSubmit }) {
     description: "",
     logo: null
   });
+
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setFormData({
+        title: initialData.title || "",
+        companyName: initialData.company?.name || "",
+        category: initialData.category || "",
+        employmentType: initialData.employmentType || "FULL_TIME",
+        baseSalaryAmount: initialData.baseSalary?.amount || "",
+        location: initialData.location || "Pan India",
+        validThrough: initialData.validThrough ? new Date(initialData.validThrough).toISOString().split('T')[0] : "",
+        description: initialData.description || "",
+        logo: null
+      });
+    } else if (isOpen) {
+      setFormData({
+        title: "",
+        companyName: "",
+        category: "",
+        employmentType: "FULL_TIME",
+        baseSalaryAmount: "",
+        location: "Pan India",
+        validThrough: "",
+        description: "",
+        logo: null
+      });
+    }
+  }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -56,7 +84,7 @@ export default function JobModal({ isOpen, onClose, onSubmit }) {
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-headline">
-                  Post New Job Drive
+                  {initialData ? "Edit Job Drive" : "Post New Job Drive"}
                 </h3>
                 <button
                   type="button"
@@ -135,7 +163,7 @@ export default function JobModal({ isOpen, onClose, onSubmit }) {
                 type="submit"
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
               >
-                Post Job
+                {initialData ? "Save Changes" : "Post Job"}
               </button>
               <button
                 type="button"

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import JobDetailsModal from "./JobDetailsModal";
+import { formatDistanceToNow, isPast } from "date-fns";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
-function JobCard({ job, canApply = false, onApply }) {
+function JobCard({ job, canApply = false, onApply, canEdit = false, onEdit, onDelete }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const salary = job.baseSalary?.amount
     ? `INR ${job.baseSalary.amount.toLocaleString("en-IN")}`
@@ -12,8 +14,14 @@ function JobCard({ job, canApply = false, onApply }) {
         day: "2-digit",
         month: "short",
         year: "numeric",
-      }) + " - 05:00 PM" // Mocking time for UI match
+      })
     : "No deadline";
+
+  const isDeadlinePast = job.validThrough ? isPast(new Date(job.validThrough)) : false;
+
+  const postedTime = job.datePosted || job.createdAt 
+    ? formatDistanceToNow(new Date(job.datePosted || job.createdAt), { addSuffix: true }) 
+    : "Recently";
 
   const jobType = job.employmentType === "FULL_TIME" 
     ? "Full-Time" 
@@ -45,7 +53,7 @@ function JobCard({ job, canApply = false, onApply }) {
         </div>
 
         <div className="flex items-center gap-3 self-end sm:self-auto">
-          <span className="text-xs font-medium text-slate-400">2 months ago</span>
+          <span className="text-xs font-medium text-slate-400">{postedTime}</span>
           <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
             job.applicationStatus === "Selected" 
             ? "bg-emerald-50 text-emerald-600"
@@ -79,7 +87,7 @@ function JobCard({ job, canApply = false, onApply }) {
       {/* Bottom Row: Deadline & Action */}
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="inline-block rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500">
-          Registrations closed on {deadline}
+          {isDeadlinePast ? "Registrations closed on " : "Apply by "}{deadline}
         </div>
         
         <div className="flex items-center gap-6">
@@ -91,7 +99,7 @@ function JobCard({ job, canApply = false, onApply }) {
             View details &gt;
           </button>
           
-          {canApply && (
+          {canApply && !isDeadlinePast && (
             <button
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 shadow-sm hover:shadow"
               onClick={() => onApply?.(job)}
@@ -99,6 +107,31 @@ function JobCard({ job, canApply = false, onApply }) {
             >
               Apply Now
             </button>
+          )}
+
+          {canEdit && (
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-4 ml-2">
+              <button
+                className="text-slate-400 hover:text-blue-600 transition p-1.5 rounded hover:bg-blue-50"
+                onClick={() => onEdit?.(job)}
+                title="Edit Job"
+                type="button"
+              >
+                <FaEdit size={16} />
+              </button>
+              <button
+                className="text-slate-400 hover:text-red-600 transition p-1.5 rounded hover:bg-red-50"
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to delete this job?")) {
+                    onDelete?.(job._id);
+                  }
+                }}
+                title="Delete Job"
+                type="button"
+              >
+                <FaTrash size={16} />
+              </button>
+            </div>
           )}
         </div>
       </div>

@@ -5,6 +5,7 @@ import studentRoutes from './routes/studentRoutes.js'
 import jobRoutes from './routes/jobRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
 import statsRoutes from './routes/statsRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 import connectDB from './config/db.js'
 import errorMiddleware from './middleware/errorMiddleware.js'
 
@@ -23,6 +24,7 @@ app.use('/api/students',studentRoutes);
 app.use('/api/jobs',jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/reports', reportRoutes);
  
 app.get("/", (req, res) => {
     res.send("Welcome to PlaceMate Backend 🚀");

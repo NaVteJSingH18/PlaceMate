@@ -9,10 +9,15 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import Layout from "../components/layout/Layout";
 import StatsCard from "../components/dashboard/StatsCard";
 import StatusBadge from "../components/common/StatusBadge";
+import ApplicationAction from "../components/common/ApplicationAction";
+import api from "../services/api";
 import { usePlacement } from "../context/placementStore";
+import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 function Dashboard() {
-  const { activity, applications, companies, stats } = usePlacement();
+  const { user } = useAuth();
+  const { applications, companies, stats, refreshData } = usePlacement();
   const [jobTypeFilter, setJobTypeFilter] = useState("All");
   const [appStatusFilter, setAppStatusFilter] = useState("All");
 
@@ -36,40 +41,30 @@ function Dashboard() {
     { name: 'No Applications Yet', value: 1, fill: '#e2e8f0' } // slate-200
   ];
 
-  const handleExport = () => {
-    const summaryRows = [
-      ["PLACEMENT SUMMARY REPORT"],
-      [],
-      ["Metric", "Count"],
-      ["Total Students", stats.students || 0],
-      ["Total Companies", stats.companies || 0],
-      ["Total Applications", stats.applications || 0],
-      ["Total Selected", stats.selected || 0],
-      [],
-      ["DETAILED APPLICATIONS"],
-      [],
-      ["Student Name", "Company", "Role", "Status", "Date Applied"]
-    ];
-
-    applications.forEach(app => {
-      summaryRows.push([
-        `"${app.student?.name || 'Unknown'}"`,
-        `"${app.job?.company?.name || 'Unknown'}"`,
-        `"${app.job?.title || 'Unknown'}"`,
-        `"${app.status || 'Unknown'}"`,
-        `"${new Date(app.createdAt || Date.now()).toLocaleDateString()}"`
-      ]);
-    });
-
-    const csvContent = summaryRows.map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `placement_report_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExport = async () => {
+    try {
+      const response = await api.get("/reports/export", { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      // Try to extract filename from content-disposition header if possible, otherwise fallback
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = `placement_report_${new Date().toISOString().split('T')[0]}.csv`;
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (fileNameMatch && fileNameMatch.length === 2) {
+            fileName = fileNameMatch[1];
+        }
+      }
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Failed to export report", error);
+      alert("Failed to export report");
+    }
   };
 
   return (
@@ -81,24 +76,48 @@ function Dashboard() {
           <div className="absolute bottom-0 left-1/4 -mb-10 h-40 w-40 rounded-full bg-purple-500 opacity-30 blur-2xl pointer-events-none"></div>
 
           <div className="relative z-10">
+            <div className="mb-6 flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-2xl font-bold text-white shadow-sm backdrop-blur-md border border-white/30">
+                {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white drop-shadow-sm">Hello, {user?.name || "User"}! 👋</h2>
+              </div>
+            </div>
+            
             <span className="inline-block rounded-full bg-white/10 backdrop-blur-md px-3 py-1 text-xs font-bold tracking-widest uppercase text-blue-200 border border-white/10 shadow-sm">
-              Placement Season
+              {companies.length > 0 ? "Active Season" : "Off Season"}
             </span>
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight drop-shadow-md">Dashboard</h1>
             <p className="mt-3 max-w-2xl text-base text-blue-100/90 leading-relaxed font-medium">
-              Track students, company drives, and application movement from one
-              focused workspace.
+              {user?.role === "admin"
+                ? "Track students, company drives, and application movement from one focused workspace."
+                : "Track your applications, discover upcoming company drives, and manage your placement profile from one focused workspace."}
             </p>
           </div>
 
-          <button
-            onClick={handleExport}
-            className="relative z-10 h-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 px-6 text-sm font-bold text-white transition-all duration-300 hover:bg-white/20 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] active:scale-95 flex items-center gap-2"
-            type="button"
-          >
-            Export Report
-          </button>
+          {user?.role === "admin" && (
+            <button
+              onClick={handleExport}
+              className="relative z-10 h-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 px-6 text-sm font-bold text-white transition-all duration-300 hover:bg-white/20 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] active:scale-95 flex items-center gap-2"
+              type="button"
+            >
+              Export Report
+            </button>
+          )}
         </section>
+
+        {user?.role === "student" && (
+          <section className="rounded-xl border border-blue-200 bg-blue-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div>
+              <h2 className="text-lg font-bold text-blue-900">Your Resume</h2>
+              <p className="mt-1 text-sm text-blue-700">Make sure your resume is up to date before applying to opportunities.</p>
+            </div>
+            <Link to="/profile" className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition">
+              Upload / Update Resume
+            </Link>
+          </section>
+        )}
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatsCard icon={FaUsers} label="Students" tone="blue" value={stats.students} />
@@ -223,10 +242,27 @@ function Dashboard() {
           <div className="grid gap-3 md:grid-cols-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
             {filteredApps.length > 0 ? filteredApps.map((application) => (
               <article
-                className="rounded-lg border border-slate-200 p-4"
+                className="rounded-lg border border-slate-200 p-4 relative"
                 key={application._id || application.id}
               >
-                <StatusBadge status={application.status} />
+                <div className="absolute top-4 right-4">
+                  {user?.role === "admin" ? (
+                    <ApplicationAction
+                      application={application}
+                      onStatusChange={async (id, newStatus) => {
+                        try {
+                          await api.put(`/applications/${id}/status`, { status: newStatus });
+                          if (refreshData) refreshData();
+                        } catch (error) {
+                          console.error("Failed to update status", error);
+                          alert("Failed to update status");
+                        }
+                      }}
+                    />
+                  ) : (
+                    <StatusBadge status={application.status} />
+                  )}
+                </div>
                 <h3 className="mt-3 font-semibold text-slate-950">
                   {application.student?.name || "Unknown"}
                 </h3>

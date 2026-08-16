@@ -19,17 +19,22 @@ function Companies() {
   const [searchTerm, setSearchTerm] = useState("");
   const [employmentType, setEmploymentType] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
 
   const [jobStatus, setJobStatus] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const loadJobs = async () => {
-    setLoading(true);
+    if (!loading) setLoading(true);
     try {
-      const response = await api.get("/jobs");
+      const response = await api.get(`/jobs?page=${currentPage}&limit=10`);
       setJobs(response.data?.jobs || []);
+      setTotalPages(response.data?.totalPages || 1);
     } catch (error) {
       console.error("Failed to fetch jobs", error);
       setJobs([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -37,7 +42,7 @@ function Companies() {
 
   useEffect(() => {
     loadJobs();
-  }, []);
+  }, [currentPage]);
 
   const displayedJobs = useMemo(() => {
     let sourceList = [];
@@ -118,6 +123,43 @@ function Companies() {
     await loadJobs();
   };
 
+  const handleUpdateJob = async (data) => {
+    const payload = {
+      title: data.title,
+      company: {
+        name: data.companyName
+      },
+      category: data.category,
+      employmentType: data.employmentType,
+      baseSalary: {
+        amount: data.baseSalaryAmount ? Number(data.baseSalaryAmount) : 0
+      },
+      location: data.location,
+      validThrough: data.validThrough,
+      description: data.description
+    };
+
+    await api.put(`/jobs/${editingJob._id}`, payload);
+
+    if (data.logo) {
+      const formData = new FormData();
+      formData.append("logo", data.logo);
+      await api.post(`/jobs/${editingJob._id}/logo`, formData);
+    }
+
+    await loadJobs();
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    try {
+      await api.delete(`/jobs/${jobId}`);
+      window.alert("Job deleted successfully");
+      await loadJobs();
+    } catch (error) {
+      window.alert(error.response?.data?.message || "Failed to delete job");
+    }
+  };
+
   return (
     <Layout>
       <div className="mx-auto max-w-7xl">
@@ -129,7 +171,10 @@ function Companies() {
           </div>
           {user?.role === "admin" && (
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setEditingJob(null);
+                setIsModalOpen(true);
+              }}
               className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
             >
               Add Job
@@ -228,9 +273,15 @@ function Companies() {
                 {displayedJobs.map((job) => (
                   <JobCard
                     canApply={user?.role === "student" && activeTab === "Opportunities"}
+                    canEdit={user?.role === "admin"}
                     job={job}
                     key={job._id}
                     onApply={handleApply}
+                    onEdit={(job) => {
+                      setEditingJob(job);
+                      setIsModalOpen(true);
+                    }}
+                    onDelete={handleDeleteJob}
                   />
                 ))}
               </div>
@@ -242,25 +293,57 @@ function Companies() {
                 </p>
               </div>
             )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-slate-600">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </section>
 
           {/* Right Column: Stats Sidebar */}
           <JobStatsSidebar
-            totalApplications={applications.length}
-            totalOpportunities={jobs.length}
+            jobs={jobs}
+            applications={applications}
           />
         </div>
 
         <JobModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          initialData={editingJob}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingJob(null);
+          }}
           onSubmit={async (data) => {
             try {
-              await handleCreateJob(data);
+              if (editingJob) {
+                await handleUpdateJob(data);
+              } else {
+                await handleCreateJob(data);
+              }
               setIsModalOpen(false);
+              setEditingJob(null);
             } catch (error) {
-              console.error("Error creating job:", error);
-              window.alert(error.response?.data?.message || "Failed to create job");
+              console.error("Error saving job:", error);
+              window.alert(error.response?.data?.message || "Failed to save job");
             }
           }}
         />
