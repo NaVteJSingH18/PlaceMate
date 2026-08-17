@@ -8,10 +8,17 @@ import statsRoutes from './routes/statsRoutes.js'
 import reportRoutes from './routes/reportRoutes.js'
 import connectDB from './config/db.js'
 import errorMiddleware from './middleware/errorMiddleware.js'
+import cors from 'cors';
 
 connectDB();
  
 const app=express(); 
+
+// Enable CORS for all domains, or specify your frontend URL
+app.use(cors({
+    origin: '*', // You can restrict this to your frontend URL later, e.g. ['https://placemate.vercel.app']
+    credentials: true
+}));
 
 app.use(express.json());
 

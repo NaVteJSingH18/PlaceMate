@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api', // This will be proxied by Vite to http://localhost:5000/api
+  // Use the environment variable if available (for production), otherwise fallback to the proxy (for local dev)
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 const getTokenFromCookie = () => {
