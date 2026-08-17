@@ -32,9 +32,9 @@ export default function JobDetailsModal({ isOpen, onClose, job }) {
 
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-        <div className="relative z-10 inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-slate-200">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="flex justify-between items-start mb-5">
+        <div className="relative z-10 inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-[0_8px_30px_rgba(28,44,92,0.12)] transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+          <div className="bg-white px-6 pt-6 pb-4 sm:p-8 sm:pb-6">
+            <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 {job.logo?.url ? (
                   <img src={job.logo.url} alt="Logo" className="h-16 w-16 rounded-md border border-slate-200 object-contain p-2" />
@@ -80,17 +80,17 @@ export default function JobDetailsModal({ isOpen, onClose, job }) {
 
             <div>
               <h4 className="text-sm font-bold text-slate-900 mb-3">Job Description</h4>
-              <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-lg p-4 border border-slate-100">
+              <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-[#f8f9fc] rounded-2xl p-6">
                 {job.description || "No description provided."}
               </div>
             </div>
           </div>
           
-          <div className="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-200">
+          <div className="bg-white px-6 py-6 sm:px-8 sm:flex sm:flex-row-reverse">
             <button
               type="button"
               onClick={onClose}
-              className="w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm transition-colors"
+              className="w-full inline-flex justify-center rounded-full bg-slate-100 px-6 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 sm:w-auto transition-colors"
             >
               Close
             </button>

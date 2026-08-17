@@ -90,7 +90,10 @@ function Applications() {
       <div className="space-y-6">
         <section className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
           <div>
-            <h1 className="text-3xl font-bold text-slate-950">Applications</h1>
+            <div className="flex items-center gap-3 text-slate-800">
+              <span className="text-3xl text-blue-600">📝</span>
+              <h1 className="text-3xl font-medium tracking-tight">Applications</h1>
+            </div>
             <p className="mt-2 text-sm text-slate-500">
               {role === "admin"
                 ? "Follow every candidate from applied to final selection."
@@ -127,12 +130,12 @@ function Applications() {
 
             return (
               <article
-                className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+                className="rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(28,44,92,0.06)] transition-transform hover:-translate-y-1"
                 key={filter}
               >
                 <StatusBadge status={filter} />
-                <p className="mt-4 text-3xl font-bold text-slate-950">{count}</p>
-                <p className="mt-1 text-sm text-slate-500">{filter} applications</p>
+                <p className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900">{count}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-500">{filter} applications</p>
               </article>
             );
           })}
@@ -148,15 +151,15 @@ function Applications() {
           <div className="space-y-3">
             {filteredApplications.map((application) => (
               <article
-                className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                className="rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgba(28,44,92,0.06)]"
                 key={application._id}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-slate-900">
+                    <h3 className="font-bold text-slate-900">
                       {application.job?.title || "Unknown role"}
                     </h3>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm font-medium text-slate-500 mt-1">
                       {application.job?.company?.name || "Unknown company"}
                     </p>
                   </div>

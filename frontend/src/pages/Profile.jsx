@@ -152,14 +152,17 @@ export default function Profile() {
     <Layout>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">My Profile</h1>
+          <div className="flex items-center gap-3 text-slate-800">
+            <span className="text-3xl text-blue-600">👤</span>
+            <h1 className="text-3xl font-medium tracking-tight">My Profile</h1>
+          </div>
           <p className="mt-2 text-sm text-slate-500">
             View and manage your placement profile details.
           </p>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgba(28,44,92,0.06)]">
+          <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-semibold text-slate-900">Personal Information</h2>
             {!isEditing && (
               <button
@@ -183,7 +186,7 @@ export default function Profile() {
                   value={formData.name}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                 />
               </div>
 
@@ -197,7 +200,7 @@ export default function Profile() {
                   value={formData.email}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                 />
               </div>
 
@@ -213,7 +216,7 @@ export default function Profile() {
                   value={formData.branch}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                 />
               </div>
 
@@ -230,7 +233,7 @@ export default function Profile() {
                   value={formData.cgpa}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                 />
               </div>
 
@@ -245,7 +248,7 @@ export default function Profile() {
                   onChange={handleChange}
                   disabled={!isEditing}
                   placeholder="e.g. React, Node.js, Python"
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                 />
               </div>
 
@@ -259,7 +262,7 @@ export default function Profile() {
                     name="resume"
                     onChange={handleChange}
                     accept=".pdf"
-                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 ) : (
                   <div className="text-sm text-slate-500 italic">
@@ -283,17 +286,17 @@ export default function Profile() {
             </div>
 
             {isEditing && (
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
+                  className="px-6 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                  className="px-6 py-2.5 text-sm font-bold text-white bg-[#1c2c5c] rounded-full hover:bg-blue-900 transition-colors shadow-sm"
                 >
                   Save Changes
                 </button>
@@ -302,7 +305,7 @@ export default function Profile() {
           </form>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 mt-6">
+        <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgba(28,44,92,0.06)] mt-8">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">Security Settings</h2>
           
           <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md mb-8">
@@ -314,7 +317,7 @@ export default function Profile() {
                 required
                 value={passwordData.currentPassword}
                 onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div>
@@ -324,7 +327,7 @@ export default function Profile() {
                 required
                 value={passwordData.newPassword}
                 onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div>
@@ -334,25 +337,27 @@ export default function Profile() {
                 required
                 value={passwordData.confirmPassword}
                 onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-slate-800 rounded-md hover:bg-slate-900"
-            >
-              Update Password
-            </button>
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="px-6 py-2.5 text-sm font-bold text-white bg-[#1c2c5c] rounded-full hover:bg-blue-900 transition-colors shadow-sm"
+              >
+                Update Password
+              </button>
+            </div>
           </form>
 
           <div className="pt-6 border-t border-red-100">
             <h3 className="text-md font-medium text-red-600 mb-2">Danger Zone</h3>
-            <p className="text-sm text-slate-500 mb-4">
+            <p className="text-sm text-slate-500 mb-5">
               Once you delete your account, there is no going back. Please be certain.
             </p>
             <button
               onClick={handleDeleteAccount}
-              className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+              className="px-6 py-2.5 text-sm font-bold text-red-600 bg-red-50 rounded-full hover:bg-red-100 transition-colors"
             >
               Delete Account
             </button>

@@ -43,7 +43,7 @@ function Sidebar() {
   });
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col justify-between border-r border-slate-200 bg-white p-5 text-slate-700 lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+    <aside className="hidden w-[260px] lg:flex flex-col justify-between bg-[#1b2b5a] text-slate-300 p-6 shrink-0">
       <div>
         <div className="mb-8 p-1">
           <img 
@@ -54,12 +54,9 @@ function Sidebar() {
               // Fallback to PM + Text if logo is not found
               e.target.style.display = 'none';
               e.target.parentElement.innerHTML = `
-                <div class="flex items-center gap-3">
-                  <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-purple-600 text-white font-bold text-xs">PM</div>
-                  <div>
-                    <h1 class="text-xl font-bold leading-tight text-slate-800">PlaceMate</h1>
-                    <p class="text-xs text-slate-500">Campus placement CRM</p>
-                  </div>
+                <div class="flex flex-col items-center justify-center p-6 bg-white/5 rounded-2xl ring-1 ring-white/10 mb-2">
+                  <div class="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 text-white text-3xl shadow-lg mb-3">🎓</div>
+                  <h1 class="text-xl font-bold tracking-tight text-white">PlaceMate</h1>
                 </div>
               `;
             }} 
@@ -72,10 +69,10 @@ function Sidebar() {
               key={link.name}
               to={link.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                `flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold transition-all ${
                   isActive
-                    ? "bg-purple-50 text-purple-700"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-white/10 text-white shadow-sm ring-1 ring-white/20"
+                    : "text-blue-100/70 hover:bg-white/5 hover:text-white"
                 }`
               }
             >

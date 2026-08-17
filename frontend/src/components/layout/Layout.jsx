@@ -12,13 +12,13 @@ const mobileLinks = [
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#f8f9fc] flex-col lg:flex-row">
       <Sidebar />
 
-      <div className="min-h-screen lg:ml-64">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
         <Navbar />
 
-        <main className="px-4 py-6 pb-24 sm:px-6 lg:px-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
           {children}
         </main>
       </div>
