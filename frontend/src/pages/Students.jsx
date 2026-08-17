@@ -149,7 +149,10 @@ function Students() {
       <div className="space-y-6">
         <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <h1 className="text-3xl font-bold text-slate-950">Students</h1>
+            <div className="flex items-center gap-3 text-slate-800">
+              <span className="text-3xl text-blue-600">🎓</span>
+              <h1 className="text-3xl font-medium tracking-tight">Students</h1>
+            </div>
             <p className="mt-2 text-sm text-slate-500">
               Review eligible candidates, application counts, and interview status.
             </p>
@@ -173,52 +176,7 @@ function Students() {
           </div>
         </section>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {students.map((student) => (
-            <article
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-              key={student.id}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-lg bg-blue-50 font-bold text-blue-700">
-                  {student.name ? student.name
-                    .split(" ")
-                    .map((part) => part[0])
-                    .join("")
-                    .substring(0, 2) : "S"}
-                </div>
-                {student.resume?.url ? (
-                  <span className="text-xs font-semibold text-green-700 bg-green-50 px-2 py-1 rounded-md">Resume Uploaded</span>
-                ) : (
-                  <span className="text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">No Resume</span>
-                )}
-              </div>
 
-              <h2 className="mt-4 font-bold text-slate-950">{student.name || "Unknown"}</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {student.branch || "No Branch"} - CGPA {student.cgpa || "N/A"}
-              </p>
-              
-              <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
-                <button
-                  onClick={() => {
-                    setEditingStudent(student);
-                    setIsModalOpen(true);
-                  }}
-                  className="flex-1 rounded border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteStudent(student._id || student.id)}
-                  className="flex-1 rounded border border-red-200 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
 
         {students.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">

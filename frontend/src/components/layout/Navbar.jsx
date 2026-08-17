@@ -1,8 +1,8 @@
-import { FaBell, FaUserCircle, FaQuestionCircle } from "react-icons/fa";
+import { FaBell, FaSearch, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { usePlacement } from "../../context/placementStore";
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -10,54 +10,40 @@ function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const getPageTitle = () => {
-    const path = location.pathname;
-    if (path.includes("companies")) return "Companies";
-    if (path.includes("students")) return "Students";
-    if (path.includes("applications")) return "Applications";
-    if (path.includes("profile")) return "My Profile";
-    return "Dashboard";
-  };
-
   const notifications = user?.role === "admin"
     ? applications.slice(0, 5).map((app, index) => ({
         id: app._id || index,
-        text: `New application received from ${app.student?.name || "a student"} for ${app.job?.title || "a role"} at ${app.job?.company?.name || "a company"}.`,
+        text: `New application received from ${app.student?.name || "a student"} for ${app.job?.title || "a role"}.`,
         time: app.createdAt ? new Date(app.createdAt).toLocaleString() : "Recently applied",
         isUnread: true,
       }))
     : companies.slice(0, 5).map((job, index) => ({
         id: job._id || index,
-        text: `New Opportunity for You - ${job.company?.name || "Company"} - ${job.title} - ${job.location || "Location"}. Registrations Open till ${job.validThrough ? new Date(job.validThrough).toLocaleDateString() : 'TBD'}.`,
+        text: `New Opportunity: ${job.company?.name || "Company"} - ${job.title}.`,
         time: job.createdAt ? new Date(job.createdAt).toLocaleString() : "Recently added",
         isUnread: true,
       }));
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          {user?.role === "admin" ? "Placement Administration" : "Student Portal"}
-        </p>
-        <h2 className="text-lg font-bold text-slate-950">{getPageTitle()}</h2>
+    <header className="sticky top-0 z-10 flex items-center justify-between bg-transparent px-4 py-6 sm:px-6 lg:px-8">
+      <div className="hidden flex-1 sm:block">
+        <div className="relative max-w-md mx-auto">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="Search" 
+            className="h-12 w-full rounded-full bg-white pl-11 pr-4 text-sm font-medium text-slate-700 shadow-[0_2px_12px_rgba(0,0,0,0.03)] outline-none transition focus:ring-2 focus:ring-blue-500/20"
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button
-          aria-label="Help & Support"
-          className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-          type="button"
-          onClick={() => window.alert("Help & Support center coming soon!")}
-        >
-          <FaQuestionCircle />
-        </button>
+      <div className="flex flex-1 items-center justify-end gap-5">
 
         <div className="relative">
           <button
@@ -66,11 +52,11 @@ function Navbar() {
               setIsNotificationsOpen(!isNotificationsOpen);
               setIsDropdownOpen(false);
             }}
-            className="grid h-10 w-10 relative place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+            className="relative grid h-12 w-12 place-items-center rounded-full bg-white text-slate-400 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition hover:text-slate-600"
             type="button"
           >
-            <FaBell />
-            <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500"></span>
+            <FaBell className="text-lg" />
+            <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
           </button>
           
           {isNotificationsOpen && (
@@ -82,7 +68,7 @@ function Navbar() {
                 {notifications.length > 0 ? notifications.map((notif) => (
                   <div key={notif.id} className="p-4 border-b border-slate-50 hover:bg-slate-50 transition flex gap-3">
                     <div className="pt-1.5">
-                      <div className={`h-2 w-2 rounded-full ${notif.isUnread ? 'bg-purple-600' : 'bg-transparent'}`}></div>
+                      <div className={`h-2 w-2 rounded-full ${notif.isUnread ? 'bg-blue-600' : 'bg-transparent'}`}></div>
                     </div>
                     <div>
                       <p className="text-sm text-slate-700 leading-snug">{notif.text}</p>
@@ -106,10 +92,16 @@ function Navbar() {
               setIsDropdownOpen(!isDropdownOpen);
               setIsNotificationsOpen(false);
             }}
-            className="flex items-center gap-2 font-semibold text-slate-800 hover:text-blue-600 transition"
+            className="flex items-center gap-3 rounded-full bg-white pl-2 pr-4 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
           >
-            <FaUserCircle className="h-6 w-6 text-slate-400" />
-            <span className="hidden sm:inline">{user?.name || "User"}</span>
+            <div className="grid h-9 w-9 place-items-center rounded-full bg-blue-600 text-white font-bold text-sm">
+              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+            </div>
+            <div className="hidden text-left sm:block">
+              <p className="text-sm font-bold text-slate-900">{user?.name || "User Name"}</p>
+              <p className="text-[11px] font-semibold text-slate-400">{user?.role === "admin" ? "Administrator" : "Student"}</p>
+            </div>
+            <FaChevronDown className="ml-1 text-[10px] text-slate-400" />
           </button>
           
           {isDropdownOpen && (

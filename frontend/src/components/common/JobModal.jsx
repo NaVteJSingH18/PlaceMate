@@ -79,11 +79,11 @@ export default function JobModal({ isOpen, onClose, onSubmit, initialData = null
 
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-        <div className="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-gray-200">
+        <div className="relative z-10 inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-[0_8px_30px_rgba(28,44,92,0.12)] transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           <form onSubmit={handleSubmit}>
-            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-headline">
+            <div className="bg-white px-6 pt-6 pb-4 sm:p-8 sm:pb-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-slate-900" id="modal-headline">
                   {initialData ? "Edit Job Drive" : "Post New Job Drive"}
                 </h3>
                 <button
@@ -96,30 +96,30 @@ export default function JobModal({ isOpen, onClose, onSubmit, initialData = null
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-1">
                     Job Title
                   </label>
-                  <input type="text" name="title" id="title" required value={formData.title} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <input type="text" name="title" id="title" required value={formData.title} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="companyName" className="block text-sm font-medium text-slate-700 mb-1">
                     Company Name
                   </label>
-                  <input type="text" name="companyName" id="companyName" required value={formData.companyName} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <input type="text" name="companyName" id="companyName" required value={formData.companyName} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="category" className="block text-sm font-medium text-slate-700 mb-1">
                     Category (e.g. Engineering)
                   </label>
-                  <input type="text" name="category" id="category" required value={formData.category} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <input type="text" name="category" id="category" required value={formData.category} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div>
-                  <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="employmentType" className="block text-sm font-medium text-slate-700 mb-1">
                     Employment Type
                   </label>
-                  <select name="employmentType" id="employmentType" required value={formData.employmentType} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border">
+                  <select name="employmentType" id="employmentType" required value={formData.employmentType} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                     <option value="FULL_TIME">Full Time</option>
                     <option value="PART_TIME">Part Time</option>
                     <option value="INTERN">Intern</option>
@@ -127,48 +127,46 @@ export default function JobModal({ isOpen, onClose, onSubmit, initialData = null
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="baseSalaryAmount" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="baseSalaryAmount" className="block text-sm font-medium text-slate-700 mb-1">
                     Salary / Package
                   </label>
-                  <input type="number" name="baseSalaryAmount" id="baseSalaryAmount" value={formData.baseSalaryAmount} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <input type="number" name="baseSalaryAmount" id="baseSalaryAmount" value={formData.baseSalaryAmount} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="location" className="block text-sm font-medium text-slate-700 mb-1">
                     Location
                   </label>
-                  <input type="text" name="location" id="location" value={formData.location} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <input type="text" name="location" id="location" value={formData.location} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div>
-                  <label htmlFor="validThrough" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="validThrough" className="block text-sm font-medium text-slate-700 mb-1">
                     Application Deadline
                   </label>
-                  <input type="date" name="validThrough" id="validThrough" required value={formData.validThrough} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <input type="date" name="validThrough" id="validThrough" required value={formData.validThrough} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div>
-                  <label htmlFor="logo" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="logo" className="block text-sm font-medium text-slate-700 mb-1">
                     Company Logo
                   </label>
-                  <input type="file" name="logo" id="logo" accept="image/*" onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-1 border" />
+                  <input type="file" name="logo" id="logo" accept="image/*" onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
                 <div className="md:col-span-2">
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">
                     Job Description
                   </label>
-                  <textarea name="description" id="description" required rows="3" value={formData.description} onChange={handleChange} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" />
+                  <textarea name="description" id="description" required rows="3" value={formData.description} onChange={handleChange} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-sm font-medium transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+            <div className="bg-white px-6 py-6 sm:px-8 sm:flex sm:flex-row-reverse">
               <button
-                type="submit"
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+                className="w-full inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-[#1c2c5c] text-sm font-bold text-white hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto transition-colors"
               >
                 {initialData ? "Save Changes" : "Post Job"}
               </button>
               <button
                 type="button"
-                onClick={onClose}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+                className="mt-3 w-full inline-flex justify-center rounded-full bg-slate-100 px-6 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 sm:mt-0 sm:ml-3 sm:w-auto transition-colors"
               >
                 Cancel
               </button>

@@ -20,6 +20,7 @@ function Companies() {
   const [employmentType, setEmploymentType] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
+  const [studentProfile, setStudentProfile] = useState(null);
 
   const [jobStatus, setJobStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,6 +44,21 @@ function Companies() {
   useEffect(() => {
     loadJobs();
   }, [currentPage]);
+
+  useEffect(() => {
+    if (user?.role === "student" && user.studentId) {
+      api.get(`/students/${user.studentId}`)
+        .then(res => setStudentProfile(res.data))
+        .catch(err => console.error("Failed to load student profile", err));
+    }
+  }, [user]);
+
+  const checkEligibility = (job, student) => {
+    if (!student) return true;
+    const studentCgpa = student.cgpa || 0;
+    const cutoff = job.eligibilityCriteria?.cgpaCutoff || 0;
+    return studentCgpa >= cutoff;
+  };
 
   const displayedJobs = useMemo(() => {
     let sourceList = [];
@@ -81,9 +97,24 @@ function Companies() {
       const matchesType = employmentType === "All" || job.employmentType === employmentType;
       const matchesStatus = jobStatus === "All" || job.status === jobStatus;
 
-      return matchesSearch && matchesType && matchesStatus;
+      let isEligibleJob = true;
+      if (user?.role === "student") {
+        isEligibleJob = checkEligibility(job, studentProfile);
+      }
+
+      const matchesEligible = showEligible && isEligibleJob;
+      const matchesNonEligible = showNonEligible && !isEligibleJob;
+      
+      const passesEligibilityFilter = user?.role !== "student" || matchesEligible || matchesNonEligible;
+
+      return matchesSearch && matchesType && matchesStatus && passesEligibilityFilter;
+    }).map(job => {
+      if (user?.role === "student") {
+         return { ...job, isEligible: checkEligibility(job, studentProfile) };
+      }
+      return job;
     });
-  }, [jobs, applications, searchTerm, activeTab, user, employmentType, jobStatus]);
+  }, [jobs, applications, searchTerm, activeTab, user, employmentType, jobStatus, showEligible, showNonEligible, studentProfile]);
 
   const handleApply = async (job) => {
     try {
@@ -166,7 +197,7 @@ function Companies() {
         {/* Header Section */}
         <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3 text-slate-800">
-            <span className="text-3xl text-purple-700">💼</span>
+            <span className="text-3xl text-blue-600">💼</span>
             <h1 className="text-3xl font-medium tracking-tight">Jobs</h1>
           </div>
           {user?.role === "admin" && (
@@ -191,19 +222,19 @@ function Companies() {
             <div className="mb-6 border-b border-slate-200">
               <nav className="flex items-center gap-8 text-sm font-medium">
                 <button
-                  className={`py-3 ${activeTab === "Opportunities" ? "border-b-2 border-purple-700 text-purple-700" : "text-slate-500 hover:text-slate-700"}`}
+                  className={`py-3 ${activeTab === "Opportunities" ? "border-b-2 border-blue-600 text-blue-600 font-bold" : "text-slate-500 hover:text-slate-700"}`}
                   onClick={() => setActiveTab("Opportunities")}
                 >
                   Opportunities
                 </button>
                 <button
-                  className={`py-3 ${activeTab === "Applications" ? "border-b-2 border-purple-700 text-purple-700" : "text-slate-500 hover:text-slate-700"}`}
+                  className={`py-3 ${activeTab === "Applications" ? "border-b-2 border-blue-600 text-blue-600 font-bold" : "text-slate-500 hover:text-slate-700"}`}
                   onClick={() => setActiveTab("Applications")}
                 >
                   Applications
                 </button>
                 <button
-                  className={`py-3 ${activeTab === "Offers" ? "border-b-2 border-purple-700 text-purple-700" : "text-slate-500 hover:text-slate-700"}`}
+                  className={`py-3 ${activeTab === "Offers" ? "border-b-2 border-blue-600 text-blue-600 font-bold" : "text-slate-500 hover:text-slate-700"}`}
                   onClick={() => setActiveTab("Offers")}
                 >
                   Offers
@@ -237,30 +268,32 @@ function Companies() {
                   value={jobStatus}
                 >
                   <option value="All">All Status</option>
-                  <option value="Open">Open</option>
+                  <option value="Active">Open</option>
                   <option value="Closed">Closed</option>
                 </select>
               </div>
-              <div className="flex shrink-0 justify-start gap-6 text-sm font-medium text-slate-600 xl:justify-end">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    checked={showEligible}
-                    className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                    onChange={(e) => setShowEligible(e.target.checked)}
-                    type="checkbox"
-                  />
-                  Eligible
-                </label>
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    checked={showNonEligible}
-                    className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                    onChange={(e) => setShowNonEligible(e.target.checked)}
-                    type="checkbox"
-                  />
-                  Non Eligible
-                </label>
-              </div>
+              {user?.role === "student" && (
+                <div className="flex shrink-0 justify-start gap-6 text-sm font-medium text-slate-600 xl:justify-end">
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                      checked={showEligible}
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      onChange={(e) => setShowEligible(e.target.checked)}
+                      type="checkbox"
+                    />
+                    Eligible
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                      checked={showNonEligible}
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      onChange={(e) => setShowNonEligible(e.target.checked)}
+                      type="checkbox"
+                    />
+                    Non Eligible
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Jobs List */}

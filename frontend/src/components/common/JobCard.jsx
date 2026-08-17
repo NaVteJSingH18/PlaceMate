@@ -11,26 +11,26 @@ function JobCard({ job, canApply = false, onApply, canEdit = false, onEdit, onDe
 
   const deadline = job.validThrough
     ? new Date(job.validThrough).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
     : "No deadline";
 
   const isDeadlinePast = job.validThrough ? isPast(new Date(job.validThrough)) : false;
 
-  const postedTime = job.datePosted || job.createdAt 
-    ? formatDistanceToNow(new Date(job.datePosted || job.createdAt), { addSuffix: true }) 
+  const postedTime = job.datePosted || job.createdAt
+    ? formatDistanceToNow(new Date(job.datePosted || job.createdAt), { addSuffix: true })
     : "Recently";
 
-  const jobType = job.employmentType === "FULL_TIME" 
-    ? "Full-Time" 
-    : job.employmentType === "INTERN" 
-    ? "Internship" 
-    : "Internship + Full-Time";
+  const jobType = job.employmentType === "FULL_TIME"
+    ? "Full-Time"
+    : job.employmentType === "INTERN"
+      ? "Internship"
+      : "Internship + Full-Time";
 
   return (
-    <article className="mb-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <article className="mb-4 rounded-3xl bg-[#f8f9fc] p-6 transition-transform hover:-translate-y-1 hover:shadow-lg hover:shadow-[#1c2c5c]/10">
       {/* Top Row: Logo, Titles, Badges */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-4">
@@ -54,16 +54,17 @@ function JobCard({ job, canApply = false, onApply, canEdit = false, onEdit, onDe
 
         <div className="flex items-center gap-3 self-end sm:self-auto">
           <span className="text-xs font-medium text-slate-400">{postedTime}</span>
-          <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-            job.applicationStatus === "Selected" 
-            ? "bg-emerald-50 text-emerald-600"
-            : job.applicationStatus === "Rejected"
-            ? "bg-red-50 text-red-600"
-            : job.applicationStatus 
-            ? "bg-blue-50 text-blue-600"
-            : "bg-emerald-50 text-emerald-600"
-          }`}>
-            {job.applicationStatus || "Eligible"}
+          <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${job.applicationStatus === "Selected"
+              ? "bg-emerald-50 text-emerald-600"
+              : job.applicationStatus === "Rejected"
+                ? "bg-red-50 text-red-600"
+                : job.applicationStatus
+                  ? "bg-blue-50 text-blue-600"
+                  : job.isEligible === false
+                    ? "bg-red-50 text-red-600"
+                    : "bg-emerald-50 text-emerald-600"
+            }`}>
+            {job.applicationStatus || (job.isEligible === false ? "Not Eligible" : "Eligible")}
           </span>
         </div>
       </div>
@@ -89,17 +90,17 @@ function JobCard({ job, canApply = false, onApply, canEdit = false, onEdit, onDe
         <div className="inline-block rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500">
           {isDeadlinePast ? "Registrations closed on " : "Apply by "}{deadline}
         </div>
-        
+
         <div className="flex items-center gap-6">
-          <button 
+          <button
             onClick={() => setIsDetailsOpen(true)}
             className="text-sm font-bold text-blue-600 transition hover:text-blue-700"
             type="button"
           >
             View details &gt;
           </button>
-          
-          {canApply && !isDeadlinePast && (
+
+          {canApply && !isDeadlinePast && job.isEligible !== false && (
             <button
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 shadow-sm hover:shadow"
               onClick={() => onApply?.(job)}
@@ -136,10 +137,10 @@ function JobCard({ job, canApply = false, onApply, canEdit = false, onEdit, onDe
         </div>
       </div>
 
-      <JobDetailsModal 
-        isOpen={isDetailsOpen} 
-        onClose={() => setIsDetailsOpen(false)} 
-        job={job} 
+      <JobDetailsModal
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        job={job}
       />
     </article>
   );
